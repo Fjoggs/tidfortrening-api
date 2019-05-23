@@ -1,6 +1,6 @@
 package com.tidfortrening.api.exercise
 
-import com.tidfortrening.api.exercise.ExerciseController.ExerciseObject
+import com.tidfortrening.api.exercise.ExerciseController.ExerciseJsonRequest
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -9,7 +9,7 @@ import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import javax.sql.DataSource
 
-class ExerciseDao (dataSource: DataSource) {
+class ExerciseDao(dataSource: DataSource) {
 
     init {
         Database.connect(dataSource)
@@ -19,33 +19,33 @@ class ExerciseDao (dataSource: DataSource) {
         }
     }
 
-    fun createExercise(exerciseObject: ExerciseObject): Int =
+    fun createExercise(exerciseJsonRequest: ExerciseJsonRequest): Int =
             transaction {
                 addLogger(StdOutSqlLogger)
                 val exercise = Exercise.new {
-                    name = exerciseObject.name
-                    description = exerciseObject.description
+                    name = exerciseJsonRequest.name
+                    description = exerciseJsonRequest.description
                 }
                 exercise.id.value
             }
 
-    fun readExercise(id: Int): ExerciseObject? =
+    fun readExercise(id: Int): ExerciseJsonRequest? =
             transaction {
                 addLogger(StdOutSqlLogger)
                 val exercise = Exercise.findById(id)
                 exercise?.let {
-                    ExerciseObject(exercise.name, exercise.description)
+                    ExerciseJsonRequest(exercise.name, exercise.description)
                 }
             }
 
-    fun updateExercise(id: Int, newExercise: ExerciseObject): ExerciseObject? =
+    fun updateExercise(id: Int, newExercise: ExerciseJsonRequest): ExerciseJsonRequest? =
             transaction {
                 addLogger(StdOutSqlLogger)
                 val exercise = Exercise.findById(id)
                 exercise?.let {
                     exercise.name = newExercise.name
                     exercise.description = newExercise.description
-                    ExerciseObject(exercise.name, exercise.description)
+                    ExerciseJsonRequest(exercise.name, exercise.description)
                 }
             }
 

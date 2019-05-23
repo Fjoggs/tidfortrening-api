@@ -3,15 +3,15 @@ package com.tidfortrening.api.activity
 import com.tidfortrening.api.activity.ActivityController.ActivityObject
 import com.tidfortrening.api.exercise.Exercise
 import com.tidfortrening.api.exercise.Exercises
-import org.jetbrains.exposed.dao.*
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
+import com.tidfortrening.api.user.User
+import com.tidfortrening.api.user.Users
+import org.jetbrains.exposed.dao.EntityID
+import org.jetbrains.exposed.dao.IntEntity
+import org.jetbrains.exposed.dao.IntEntityClass
+import org.jetbrains.exposed.dao.IntIdTable
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
-import java.lang.Exception
-import java.time.format.DateTimeParseException
 import javax.sql.DataSource
 
 class ActivityDao(dataSource: DataSource) {
@@ -31,6 +31,7 @@ class ActivityDao(dataSource: DataSource) {
                     startDate = DateTime.parse(activityObject.startDate)
                     endDate = DateTime.parse(activityObject.endDate)
                     exercise = getExercise(activityObject.exerciseId) ?: throw Exception("No exercise found")
+                    users = getUsers(activityObject.users)
                 }
                 activity.id.value
             }
@@ -40,13 +41,20 @@ class ActivityDao(dataSource: DataSource) {
                 Exercise.findById(exerciseId.toInt())
             }
 
+    private fun getUsers(users: Array<String>): SizedIterable<User> {
+        val userList = mutableListOf<Int>()
+        users.forEach { userList.add(it.toInt()) }
+        return transaction {
+            User.forIds(userList)
+        }
+    }
 
     fun readActivity(id: Int): ActivityObject? =
             transaction {
                 addLogger(StdOutSqlLogger)
                 val activity = Activity.findById(id)
                 activity?.let {
-                    ActivityObject(activity.startDate.toString(), activity.endDate.toString(), activity.exercise.id.toString())
+                    ActivityObject(activity.startDate.toString(), activity.endDate.toString(), activity.exercise.id.toString(), activity.users.toList())
                 }
             }
 
@@ -58,7 +66,8 @@ class ActivityDao(dataSource: DataSource) {
                     activity.startDate = DateTime.parse(newActivity.startDate)
                     activity.endDate = DateTime.parse(newActivity.endDate)
                     activity.exercise = getExercise(newActivity.exerciseId) ?: throw Exception("No exercise found")
-                    ActivityObject(activity.startDate.toString(), activity.endDate.toString(), activity.exercise.id.toString())
+                    activity.users = getUsers(newActivity.users)
+                    ActivityObject(activity.startDate.toString(), activity.endDate.toString(), activity.exercise.id.toString(), activity.users.toList())
                 }
             }
 
@@ -79,10 +88,16 @@ object Activities : IntIdTable() {
     val exercise = reference("exercise", Exercises)
 }
 
+object ActivityUsers: Table() {
+    val activity = reference("activity", Activities).primaryKey(0)
+    val user = reference("user", Users).primaryKey(1)
+}
+
 class Activity(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<Activity>(Activities)
 
     var startDate by Activities.startDate
     var endDate by Activities.endDate
     var exercise by Exercise referencedOn Activities.exercise
+    var users by User via ActivityUsers
 }

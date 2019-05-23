@@ -4,6 +4,8 @@ import com.tidfortrening.api.activity.ActivityDao
 import com.tidfortrening.api.activity.ActivityService
 import com.tidfortrening.api.exercise.ExerciseDao
 import com.tidfortrening.api.exercise.ExerciseService
+import com.tidfortrening.api.user.UserDao
+import com.tidfortrening.api.user.UserService
 import org.postgresql.ds.PGSimpleDataSource
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.builder.SpringApplicationBuilder
@@ -28,11 +30,16 @@ class ApiApplication : SpringBootServletInitializer() {
 
     fun exerciseDao() = ExerciseDao(dataSource())
 
+    fun userDao() = UserDao(dataSource())
+
     @Bean
     fun activityService() = ActivityService(activityDao())
 
     @Bean
     fun exerciseService() = ExerciseService(exerciseDao())
+
+    @Bean
+    fun userService() = UserService(userDao())
 
     override fun configure(application: SpringApplicationBuilder): SpringApplicationBuilder =
             application.sources(ApiApplication::class.java)

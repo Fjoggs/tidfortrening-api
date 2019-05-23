@@ -7,15 +7,15 @@ import org.springframework.web.bind.annotation.*
 class ExerciseController(val exerciseService: ExerciseService) {
 
     @PostMapping("/create")
-    fun createExercise(@RequestBody exercise: ExerciseObject): Int {
+    fun createExercise(@RequestBody exercise: ExerciseJsonRequest): Int {
         return exerciseService.createExercise(exercise)
     }
 
     @GetMapping("/read/{id}")
-    fun readExercise(@PathVariable id: Int): ExerciseObject? = exerciseService.readExercise(id)
+    fun readExercise(@PathVariable id: Int): ExerciseJsonRequest? = exerciseService.readExercise(id)
 
     @PostMapping("/update/{id}")
-    fun updateExercise(@PathVariable id: Int, @RequestBody newExercise: ExerciseObject): ExerciseObject? =
+    fun updateExercise(@PathVariable id: Int, @RequestBody newExercise: ExerciseJsonRequest): ExerciseJsonRequest? =
             exerciseService.updateExercise(id, newExercise)
 
     @PostMapping("/delete/{id}")
@@ -24,5 +24,5 @@ class ExerciseController(val exerciseService: ExerciseService) {
     @GetMapping("/greeting")
     fun greeting() = "Oh herro"
 
-    data class ExerciseObject(val name: String, val description: String)
+    data class ExerciseJsonRequest(val name: String, val description: String)
 }

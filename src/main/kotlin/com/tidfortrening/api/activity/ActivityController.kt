@@ -1,7 +1,5 @@
 package com.tidfortrening.api.activity
 
-import com.tidfortrening.api.exercise.Exercise
-import org.joda.time.DateTime
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -26,5 +24,5 @@ class ActivityController(val activityService: ActivityService) {
     @GetMapping("/greeting")
     fun greeting() = "Oh herro"
 
-    data class ActivityObject(val startDate: String, val endDate: String, val exerciseId: String)
+    data class ActivityObject(val startDate: String, val endDate: String, val exerciseId: String, val users: Array<String>)
 }
