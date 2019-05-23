@@ -14,7 +14,7 @@ import java.lang.Exception
 import java.time.format.DateTimeParseException
 import javax.sql.DataSource
 
-class ActivityDao (dataSource: DataSource) {
+class ActivityDao(dataSource: DataSource) {
 
     init {
         Database.connect(dataSource)
@@ -30,17 +30,23 @@ class ActivityDao (dataSource: DataSource) {
                 val activity = Activity.new {
                     startDate = DateTime.parse(activityObject.startDate)
                     endDate = DateTime.parse(activityObject.endDate)
-                    exercise = activityObject.exercise
+                    exercise = getExercise(activityObject.exerciseId) ?: throw Exception("No exercise found")
                 }
                 activity.id.value
             }
+
+    private fun getExercise(exerciseId: String): Exercise? =
+            transaction {
+                Exercise.findById(exerciseId.toInt())
+            }
+
 
     fun readActivity(id: Int): ActivityObject? =
             transaction {
                 addLogger(StdOutSqlLogger)
                 val activity = Activity.findById(id)
                 activity?.let {
-                    ActivityObject(activity.startDate.toString(), activity.endDate.toString(), activity.exercise)
+                    ActivityObject(activity.startDate.toString(), activity.endDate.toString(), activity.exercise.id.toString())
                 }
             }
 
@@ -51,8 +57,8 @@ class ActivityDao (dataSource: DataSource) {
                 activity?.let {
                     activity.startDate = DateTime.parse(newActivity.startDate)
                     activity.endDate = DateTime.parse(newActivity.endDate)
-                    activity.exercise = newActivity.exercise
-                    ActivityObject(activity.startDate.toString(), activity.endDate.toString(), activity.exercise)
+                    activity.exercise = getExercise(newActivity.exerciseId) ?: throw Exception("No exercise found")
+                    ActivityObject(activity.startDate.toString(), activity.endDate.toString(), activity.exercise.id.toString())
                 }
             }
 
