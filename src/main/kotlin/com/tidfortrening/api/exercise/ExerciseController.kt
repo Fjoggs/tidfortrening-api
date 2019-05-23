@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.*
 class ExerciseController(val exerciseService: ExerciseService) {
 
     @PostMapping("/create")
-    fun createExercise(@RequestBody exercise: ExerciseObject) {
-        exerciseService.createExercise(exercise)
+    fun createExercise(@RequestBody exercise: ExerciseObject): Int {
+        return exerciseService.createExercise(exercise)
     }
 
-    @GetMapping("/read")
-    fun readExercise() = "Read"
+    @GetMapping("/read/{exerciseId}")
+    fun readExercise(@PathVariable exerciseId: Int): ExerciseObject? = exerciseService.readExercise(exerciseId)
 
     @PostMapping("/update")
     fun updateExercise() = "Update"
