@@ -20,23 +20,44 @@ class ExerciseDao(dataSource: DataSource) {
         }
     }
 
-    fun createExercise(exerciseObject: ExerciseObject): Int {
-        return transaction {
-            addLogger(StdOutSqlLogger)
-            val exercise = Exercise.new {
-                exerciseName = exerciseObject.exerciseName
-                exerciseDescription = exerciseObject.exerciseDescription
+    fun createExercise(exerciseObject: ExerciseObject): Int =
+            transaction {
+                addLogger(StdOutSqlLogger)
+                val exercise = Exercise.new {
+                    exerciseName = exerciseObject.exerciseName
+                    exerciseDescription = exerciseObject.exerciseDescription
+                }
+                exercise.id.value
             }
-            exercise.id.value
-        }
-    }
 
     fun readExercise(exerciseId: Int): ExerciseObject? =
             transaction {
+                addLogger(StdOutSqlLogger)
                 val exercise = Exercise.findById(exerciseId)
                 exercise?.let {
                     ExerciseObject(exercise.exerciseName, exercise.exerciseDescription)
                 }
+            }
+
+    fun updateExercise(exerciseId: Int, newExercise: ExerciseObject): ExerciseObject? =
+            transaction {
+                addLogger(StdOutSqlLogger)
+                val exercise = Exercise.findById(exerciseId)
+                exercise?.let {
+                    exercise.exerciseName = newExercise.exerciseName
+                    exercise.exerciseDescription = newExercise.exerciseDescription
+                    ExerciseObject(exercise.exerciseName, exercise.exerciseDescription)
+                }
+            }
+
+    fun deleteExercise(exerciseId: Int): Boolean =
+            transaction {
+                addLogger(StdOutSqlLogger)
+                val exercise = Exercise.findById(exerciseId)
+                exercise?.let {
+                    exercise.delete()
+                    true
+                } ?: false
             }
 }
 

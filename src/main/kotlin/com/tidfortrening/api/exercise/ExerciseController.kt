@@ -14,14 +14,15 @@ class ExerciseController(val exerciseService: ExerciseService) {
     @GetMapping("/read/{exerciseId}")
     fun readExercise(@PathVariable exerciseId: Int): ExerciseObject? = exerciseService.readExercise(exerciseId)
 
-    @PostMapping("/update")
-    fun updateExercise() = "Update"
+    @PostMapping("/update/{exerciseId}")
+    fun updateExercise(@PathVariable exerciseId: Int, @RequestBody newExercise: ExerciseObject): ExerciseObject? =
+            exerciseService.updateExercise(exerciseId, newExercise)
 
-    @PostMapping("/delete")
-    fun deleteExercise() = "Delete"
+    @PostMapping("/delete/{exerciseId}")
+    fun deleteExercise(@PathVariable exerciseId: Int): Boolean = exerciseService.deleteExercise(exerciseId)
 
     @GetMapping("/greeting")
-    fun greeting() = "Oh herro"
+    fun greeting() = "Oh herroht"
 
     data class ExerciseObject(val exerciseName: String, val exerciseDescription: String)
 }
