@@ -30,5 +30,4 @@ HELP.md
 .vscode/
 
 ### Project specific stuff ###
-/testjson
 database-password.txt

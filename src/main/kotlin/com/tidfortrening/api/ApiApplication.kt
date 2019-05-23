@@ -1,5 +1,7 @@
 package com.tidfortrening.api
 
+import com.tidfortrening.api.activity.ActivityDao
+import com.tidfortrening.api.activity.ActivityService
 import com.tidfortrening.api.exercise.ExerciseDao
 import com.tidfortrening.api.exercise.ExerciseService
 import org.postgresql.ds.PGSimpleDataSource
@@ -22,7 +24,12 @@ class ApiApplication : SpringBootServletInitializer() {
         return dataSource
     }
 
+    fun activityDao() = ActivityDao(dataSource())
+
     fun exerciseDao() = ExerciseDao(dataSource())
+
+    @Bean
+    fun activityService() = ActivityService(activityDao())
 
     @Bean
     fun exerciseService() = ExerciseService(exerciseDao())

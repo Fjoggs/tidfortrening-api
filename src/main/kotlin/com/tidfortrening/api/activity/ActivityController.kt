@@ -1,26 +1,30 @@
 package com.tidfortrening.api.activity
 
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import com.tidfortrening.api.exercise.Exercise
+import org.joda.time.DateTime
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/activity")
-class ActivityController {
+class ActivityController(val activityService: ActivityService) {
 
     @PostMapping("/create")
-    fun createExercise() = "Create"
+    fun createExercise(@RequestBody activity: ActivityObject): Int {
+        return activityService.createActivity(activity)
+    }
 
-    @GetMapping("/read")
-    fun readExercise() = "Read"
+    @GetMapping("/read/{id}")
+    fun readExercise(@PathVariable id: Int): ActivityObject? = activityService.readActivity(id)
 
-    @PostMapping("/update")
-    fun updateExercise() = "Update"
+    @PostMapping("/update/{id}")
+    fun updateExercise(@PathVariable id: Int, @RequestBody newActivity: ActivityObject): ActivityObject? =
+            activityService.updateActivity(id, newActivity)
 
-    @PostMapping("/delete")
-    fun deleteExercise() = "Delete"
+    @PostMapping("/delete/{id}")
+    fun deleteExercise(@PathVariable id: Int): Boolean = activityService.deleteActivity(id)
 
     @GetMapping("/greeting")
     fun greeting() = "Oh herro"
+
+    data class ActivityObject(val startDate: DateTime, val endDate: DateTime, val exercise: Exercise)
 }

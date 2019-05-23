@@ -1,22 +1,21 @@
 package com.tidfortrening.api.exercise
 
 import com.tidfortrening.api.exercise.ExerciseController.ExerciseObject
-import org.jetbrains.exposed.dao.Entity
-import org.jetbrains.exposed.dao.EntityClass
-import org.jetbrains.exposed.dao.EntityID
-import org.jetbrains.exposed.dao.IntIdTable
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.dao.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import javax.sql.DataSource
 
-
-class ExerciseDao(dataSource: DataSource) {
+class ExerciseDao (dataSource: DataSource) {
 
     init {
         Database.connect(dataSource)
         transaction {
             addLogger(StdOutSqlLogger)
-            SchemaUtils.create(ExerciseTable)
+            SchemaUtils.create(Exercises)
         }
     }
 
@@ -24,36 +23,36 @@ class ExerciseDao(dataSource: DataSource) {
             transaction {
                 addLogger(StdOutSqlLogger)
                 val exercise = Exercise.new {
-                    exerciseName = exerciseObject.exerciseName
-                    exerciseDescription = exerciseObject.exerciseDescription
+                    name = exerciseObject.name
+                    description = exerciseObject.description
                 }
                 exercise.id.value
             }
 
-    fun readExercise(exerciseId: Int): ExerciseObject? =
+    fun readExercise(id: Int): ExerciseObject? =
             transaction {
                 addLogger(StdOutSqlLogger)
-                val exercise = Exercise.findById(exerciseId)
+                val exercise = Exercise.findById(id)
                 exercise?.let {
-                    ExerciseObject(exercise.exerciseName, exercise.exerciseDescription)
+                    ExerciseObject(exercise.name, exercise.description)
                 }
             }
 
-    fun updateExercise(exerciseId: Int, newExercise: ExerciseObject): ExerciseObject? =
+    fun updateExercise(id: Int, newExercise: ExerciseObject): ExerciseObject? =
             transaction {
                 addLogger(StdOutSqlLogger)
-                val exercise = Exercise.findById(exerciseId)
+                val exercise = Exercise.findById(id)
                 exercise?.let {
-                    exercise.exerciseName = newExercise.exerciseName
-                    exercise.exerciseDescription = newExercise.exerciseDescription
-                    ExerciseObject(exercise.exerciseName, exercise.exerciseDescription)
+                    exercise.name = newExercise.name
+                    exercise.description = newExercise.description
+                    ExerciseObject(exercise.name, exercise.description)
                 }
             }
 
-    fun deleteExercise(exerciseId: Int): Boolean =
+    fun deleteExercise(id: Int): Boolean =
             transaction {
                 addLogger(StdOutSqlLogger)
-                val exercise = Exercise.findById(exerciseId)
+                val exercise = Exercise.findById(id)
                 exercise?.let {
                     exercise.delete()
                     true
@@ -61,14 +60,14 @@ class ExerciseDao(dataSource: DataSource) {
             }
 }
 
-object ExerciseTable : IntIdTable() {
-    val exerciseName = varchar("exercise_name", 50)
-    val exerciseDescription = varchar("exercise_description", 200)
+object Exercises : IntIdTable() {
+    val name = varchar("name", 50)
+    val description = varchar("description", 200)
 }
 
-class Exercise(id: EntityID<Int>) : Entity<Int>(id) {
-    companion object : EntityClass<Int, Exercise>(ExerciseTable)
+class Exercise(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<Exercise>(Exercises)
 
-    var exerciseName by ExerciseTable.exerciseName
-    var exerciseDescription by ExerciseTable.exerciseDescription
+    var name by Exercises.name
+    var description by Exercises.description
 }

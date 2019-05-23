@@ -6,10 +6,10 @@ class ExerciseService(private val exerciseDao: ExerciseDao) {
 
     fun createExercise(exercise: ExerciseObject): Int = exerciseDao.createExercise(exercise)
 
-    fun readExercise(exerciseId: Int): ExerciseObject? = exerciseDao.readExercise(exerciseId)
+    fun readExercise(id: Int): ExerciseObject? = exerciseDao.readExercise(id)
 
-    fun updateExercise(exerciseId: Int, newExercise: ExerciseObject): ExerciseObject? =
-            exerciseDao.updateExercise(exerciseId, newExercise)
+    fun updateExercise(id: Int, newExercise: ExerciseObject): ExerciseObject? =
+            exerciseDao.updateExercise(id, newExercise)
 
-    fun deleteExercise(exerciseId: Int): Boolean = exerciseDao.deleteExercise(exerciseId)
+    fun deleteExercise(id: Int): Boolean = exerciseDao.deleteExercise(id)
 }
