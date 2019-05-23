@@ -26,5 +26,5 @@ class ActivityController(val activityService: ActivityService) {
     @GetMapping("/greeting")
     fun greeting() = "Oh herro"
 
-    data class ActivityObject(val startDate: DateTime, val endDate: DateTime, val exercise: Exercise)
+    data class ActivityObject(val startDate: String, val endDate: String, val exercise: Exercise)
 }
