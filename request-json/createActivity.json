@@ -1,1 +1,5 @@
-{"timestamp":"2019-05-23T17:48:34.139+0000","status":400,"error":"Bad Request","message":"Required request body is missing: public int com.tidfortrening.api.activity.ActivityController.createExercise(com.tidfortrening.api.activity.ActivityController$ActivityObject)","path":"/activity/create"}
+{
+    "startDate": "2019-05-23T00:00:00.000+02:00",
+    "endDate": "2019-05-23T02:00:00.000+02:00",
+    "exercise": 1
+}
