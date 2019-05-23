@@ -9,6 +9,9 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.joda.time.DateTime
+import java.lang.Exception
+import java.time.format.DateTimeParseException
 import javax.sql.DataSource
 
 class ActivityDao (dataSource: DataSource) {
@@ -25,8 +28,8 @@ class ActivityDao (dataSource: DataSource) {
             transaction {
                 addLogger(StdOutSqlLogger)
                 val activity = Activity.new {
-                    startDate = activityObject.startDate
-                    endDate = activityObject.endDate
+                    startDate = DateTime.parse(activityObject.startDate)
+                    endDate = DateTime.parse(activityObject.endDate)
                     exercise = activityObject.exercise
                 }
                 activity.id.value
@@ -37,7 +40,7 @@ class ActivityDao (dataSource: DataSource) {
                 addLogger(StdOutSqlLogger)
                 val activity = Activity.findById(id)
                 activity?.let {
-                    ActivityObject(activity.startDate, activity.endDate, activity.exercise)
+                    ActivityObject(activity.startDate.toString(), activity.endDate.toString(), activity.exercise)
                 }
             }
 
@@ -46,10 +49,10 @@ class ActivityDao (dataSource: DataSource) {
                 addLogger(StdOutSqlLogger)
                 val activity = Activity.findById(id)
                 activity?.let {
-                    activity.startDate = newActivity.startDate
-                    activity.endDate = newActivity.endDate
+                    activity.startDate = DateTime.parse(newActivity.startDate)
+                    activity.endDate = DateTime.parse(newActivity.endDate)
                     activity.exercise = newActivity.exercise
-                    ActivityObject(activity.startDate, activity.endDate, activity.exercise)
+                    ActivityObject(activity.startDate.toString(), activity.endDate.toString(), activity.exercise)
                 }
             }
 
