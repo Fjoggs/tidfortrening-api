@@ -4,7 +4,7 @@ import com.tidfortrening.api.activity.ActivityController.*
 
 class ActivityService(private val activityDao: ActivityDao) {
 
-    fun createActivity(exercise: ActivityObject): Int = activityDao.createActivity(exercise)
+    fun createActivity(exercise: ActivityObject): Int? = activityDao.createActivity(exercise)
 
     fun readActivity(id: Int): ActivityObject? = activityDao.readActivity(id)
 

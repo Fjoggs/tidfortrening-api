@@ -7,6 +7,7 @@ import com.tidfortrening.api.exercise.ExerciseService
 import com.tidfortrening.api.user.UserDao
 import com.tidfortrening.api.user.UserService
 import org.postgresql.ds.PGSimpleDataSource
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.boot.runApplication
@@ -17,6 +18,7 @@ import javax.sql.DataSource
 @SpringBootApplication
 class ApiApplication : SpringBootServletInitializer() {
 
+    @Bean
     fun dataSource(): DataSource {
         val dataSource = PGSimpleDataSource()
         dataSource.databaseName = "tidfortrening"
@@ -26,20 +28,29 @@ class ApiApplication : SpringBootServletInitializer() {
         return dataSource
     }
 
-    fun activityDao() = ActivityDao(dataSource())
-
-    fun exerciseDao() = ExerciseDao(dataSource())
-
-    fun userDao() = UserDao(dataSource())
+    @Bean
+    @Autowired
+    fun activityDao(dataSource: DataSource) = ActivityDao(dataSource)
 
     @Bean
-    fun activityService() = ActivityService(activityDao())
+    @Autowired
+    fun exerciseDao(dataSource: DataSource) = ExerciseDao(dataSource)
 
     @Bean
-    fun exerciseService() = ExerciseService(exerciseDao())
+    @Autowired
+    fun userDao(dataSource: DataSource) = UserDao(dataSource)
 
     @Bean
-    fun userService() = UserService(userDao())
+    @Autowired
+    fun activityService(activityDao: ActivityDao) = ActivityService(activityDao)
+
+    @Bean
+    @Autowired
+    fun exerciseService(exerciseDao: ExerciseDao) = ExerciseService(exerciseDao)
+
+    @Bean
+    @Autowired
+    fun userService(userDao: UserDao) = UserService(userDao)
 
     override fun configure(application: SpringApplicationBuilder): SpringApplicationBuilder =
             application.sources(ApiApplication::class.java)

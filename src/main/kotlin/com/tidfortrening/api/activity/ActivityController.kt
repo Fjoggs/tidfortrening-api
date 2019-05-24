@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*
 class ActivityController(val activityService: ActivityService) {
 
     @PostMapping("/create")
-    fun createExercise(@RequestBody activity: ActivityObject): Int {
+    fun createExercise(@RequestBody activity: ActivityObject): Int? {
         return activityService.createActivity(activity)
     }
 
@@ -24,5 +24,5 @@ class ActivityController(val activityService: ActivityService) {
     @GetMapping("/greeting")
     fun greeting() = "Oh herro"
 
-    data class ActivityObject(val startDate: String, val endDate: String, val exerciseId: String, val users: Array<String>)
+    data class ActivityObject(val startDate: String, val endDate: String, val exercise: Int, val users: List<Int>)
 }

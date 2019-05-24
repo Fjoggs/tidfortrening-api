@@ -21,42 +21,57 @@ class ActivityDao(dataSource: DataSource) {
         transaction {
             addLogger(StdOutSqlLogger)
             SchemaUtils.create(Activities)
+            SchemaUtils.create(ActivityUsers)
         }
     }
 
-    fun createActivity(activityObject: ActivityObject): Int =
+    fun createActivity(activityObject: ActivityObject): Int? {
+        val activity = transaction {
+            addLogger(StdOutSqlLogger)
+            Activity.new {
+                startDate = DateTime.parse(activityObject.startDate)
+                endDate = DateTime.parse(activityObject.endDate)
+                exercise = getExercise(activityObject.exercise) ?: throw Exception("No exercise found")
+            }
+        }
+        transaction {
+            activity.users = getUsers(activityObject.users)
+        }
+        return activity.id.value
+    }
+
+
+    private fun getExercise(exerciseId: Int): Exercise? =
             transaction {
-                addLogger(StdOutSqlLogger)
-                val activity = Activity.new {
-                    startDate = DateTime.parse(activityObject.startDate)
-                    endDate = DateTime.parse(activityObject.endDate)
-                    exercise = getExercise(activityObject.exerciseId) ?: throw Exception("No exercise found")
-                    users = getUsers(activityObject.users)
+                Exercise.findById(exerciseId)
+            }
+
+    private fun getUsers(users: List<Int>): SizedIterable<User> =
+            try {
+                transaction {
+                    User.forIds(users)
                 }
-                activity.id.value
+            } catch (e: KotlinNullPointerException) {
+                print("No user found");
+                emptySized()
             }
-
-    private fun getExercise(exerciseId: String): Exercise? =
-            transaction {
-                Exercise.findById(exerciseId.toInt())
-            }
-
-    private fun getUsers(users: Array<String>): SizedIterable<User> {
-        val userList = mutableListOf<Int>()
-        users.forEach { userList.add(it.toInt()) }
-        return transaction {
-            User.forIds(userList)
-        }
-    }
 
     fun readActivity(id: Int): ActivityObject? =
             transaction {
                 addLogger(StdOutSqlLogger)
                 val activity = Activity.findById(id)
                 activity?.let {
-                    ActivityObject(activity.startDate.toString(), activity.endDate.toString(), activity.exercise.id.toString(), activity.users.toList())
+                    ActivityObject(
+                            activity.startDate.toString(),
+                            activity.endDate.toString(),
+                            activity.exercise.id.value,
+                            parseUsers(activity.users)
+                    )
                 }
             }
+
+    private fun parseUsers(users: SizedIterable<User>): List<Int> = users.map { it.id.value }
+
 
     fun updateActivity(id: Int, newActivity: ActivityObject): ActivityObject? =
             transaction {
@@ -65,9 +80,14 @@ class ActivityDao(dataSource: DataSource) {
                 activity?.let {
                     activity.startDate = DateTime.parse(newActivity.startDate)
                     activity.endDate = DateTime.parse(newActivity.endDate)
-                    activity.exercise = getExercise(newActivity.exerciseId) ?: throw Exception("No exercise found")
+                    activity.exercise = getExercise(newActivity.exercise) ?: throw Exception("No exercise found")
                     activity.users = getUsers(newActivity.users)
-                    ActivityObject(activity.startDate.toString(), activity.endDate.toString(), activity.exercise.id.toString(), activity.users.toList())
+                    ActivityObject(
+                            activity.startDate.toString(),
+                            activity.endDate.toString(),
+                            activity.exercise.id.value,
+                            parseUsers(activity.users)
+                    )
                 }
             }
 
@@ -88,7 +108,7 @@ object Activities : IntIdTable() {
     val exercise = reference("exercise", Exercises)
 }
 
-object ActivityUsers: Table() {
+object ActivityUsers : Table() {
     val activity = reference("activity", Activities).primaryKey(0)
     val user = reference("user", Users).primaryKey(1)
 }
