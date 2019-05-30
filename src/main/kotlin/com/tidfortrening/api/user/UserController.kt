@@ -1,5 +1,6 @@
 package com.tidfortrening.api.user
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import org.springframework.web.bind.annotation.*
 
 @RestController

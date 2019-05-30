@@ -1,5 +1,7 @@
 package com.tidfortrening.api.activity
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.tidfortrening.api.user.UserController.UserJsonRequest
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -7,16 +9,20 @@ import org.springframework.web.bind.annotation.*
 class ActivityController(val activityService: ActivityService) {
 
     @PostMapping("/create")
-    fun createExercise(@RequestBody activity: ActivityObject): Int? {
-        return activityService.createActivity(activity)
+    fun createExercise(@RequestBody activityRequest: ActivityRequestObject): Int? {
+        return activityService.createActivity(activityRequest)
     }
 
-    @GetMapping("/read/{id}")
-    fun readExercise(@PathVariable id: Int): ActivityObject? = activityService.readActivity(id)
+    @GetMapping("/read/{id}", produces = ["application/json"])
+    fun readExercise(@PathVariable id: Int): String {
+        val activity = activityService.readActivity(id)
+        val mapper = ObjectMapper()
+        return mapper.writeValueAsString(activity)
+    }
 
     @PostMapping("/update/{id}")
-    fun updateExercise(@PathVariable id: Int, @RequestBody newActivity: ActivityObject): ActivityObject? =
-            activityService.updateActivity(id, newActivity)
+    fun updateExercise(@PathVariable id: Int, @RequestBody newActivityRequest: ActivityRequestObject): ActivityRequestObject? =
+            activityService.updateActivity(id, newActivityRequest)
 
     @PostMapping("/delete/{id}")
     fun deleteExercise(@PathVariable id: Int): Boolean = activityService.deleteActivity(id)
@@ -24,5 +30,5 @@ class ActivityController(val activityService: ActivityService) {
     @GetMapping("/greeting")
     fun greeting() = "Oh herro"
 
-    data class ActivityObject(val startDate: String, val endDate: String, val exercise: Int, val users: List<Int>)
+    data class ActivityRequestObject(val startDate: String, val endDate: String, val exercise: Int, val users: List<Int>)
 }
