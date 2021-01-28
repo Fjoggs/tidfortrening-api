@@ -8,6 +8,10 @@ plugins {
     kotlin("plugin.spring") version "1.2.71"
 }
 
+springBoot {
+    mainClassName = "com.tidfortrening.api.ApiApplication"
+}
+
 group = "com.tidfortrening"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8

@@ -1,7 +1,6 @@
 package com.tidfortrening.api.activity
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.tidfortrening.api.user.UserController.UserJsonRequest
 import org.springframework.web.bind.annotation.*
 
 @RestController
